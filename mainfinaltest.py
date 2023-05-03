@@ -68,3 +68,6 @@ class Game:
         self.clock = pg.time.Clock()
         self.move_speed = 250
         self.bird = Player(self.scale_factor)
+
+
+
