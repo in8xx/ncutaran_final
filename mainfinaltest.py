@@ -2,8 +2,18 @@
 
 import pygame as pg
 import os 
-from settingsfinal import *
-from spritesfinal import *
+from settingsfinaltest import *
+from spritesfinaltest import *
+from random import randint
+
+'''
+Things to do:
+1) Make platforms go left
+2) Figue out jump mechanics
+3) Figue out how the player will die
+4) How will the colors kill the player
+5) Import a bakground
+'''
 
 game_folder = os.path.dirname(__file__)
 img_folder = os.path.join(game_folder, "img")
@@ -49,4 +59,12 @@ def menu():
         pg.display.update()
     pg.quit()
 
-menu()
+class Game:
+    def __init__(self):
+        self.width = WIDTH
+        self.height = HEIGHT
+        self.scale_factor = 1.5
+        self.win = pg.display.set_mode((self.width, self.height))
+        self.clock = pg.time.Clock()
+        self.move_speed = 250
+        self.bird = Player(self.scale_factor)
