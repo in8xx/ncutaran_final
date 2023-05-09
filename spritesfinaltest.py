@@ -1,50 +1,63 @@
 # File created by Nathan Cutaran
 import pygame as pg
-
+from pygame.sprite import Sprite
 from settingsfinaltest import *
 from random import randint
 vec = pg.math.Vector2
 
 # creates a player class
-class Player(pg.sprite.Sprite):
-    def __init__(self, scale_factor):
+class Player(Sprite):
+    def __init__(self, game):
         pg.sprite.Sprite.__init__(self)
         # properties
-        # self.game = game
-        self.image = pg.Surface((100,100))
+        self.game = game
+        self.image = pg.Surface((50,50))
         self.image.fill(BLACK)
         self.rect = self.image.get_rect()
         self.rect.center = (WIDTH/2, HEIGHT/2)
         self.pos = vec(WIDTH/2, HEIGHT/2)
-        self.y_vel=0
-        self.gravity = 10
-        self.flap_speed = 250
-        self.update_on = False
+        self.vel = vec(0,0)
+        self.acc = vec(0,0)
+        self.cofric = 0.1
+        self.canjump = False
 
+# method in player class that defines the inputs and what they do, when this key gets pressed the player acceleration does this...
+    def input(self):
+        keystate = pg.key.get_pressed()
+        if keystate[pg.K_a]:
+            self.acc.x = -PLAYER_ACC
+        if keystate[pg.K_d]:
+            self.acc.x = PLAYER_ACC
 
-# method in player class that updates the position after clicking the spacebar
-    def update(self, dt):
-        if self.update_on:
-            self.gravity(dt)
+# method in player class that contricts the player jump to the platform 
+    def flap(self):
+        self.rect.x += 1
+        hits = pg.sprite.spritecollide(self, self.game.platforms, False)
+        self.rect.x -= 1
+        if hits:
+            self.vel.y = -PLAYER_JUMP
 
-            if self.rect.y<=0 and self.flap_speed==250:
-                self.rect.y=0
-                self.flap_speed=0
-                self.y_velocity=0
-            elif self.rect.y>0 and self.flap_speed==0:
-                self.flap_speed=250
+# method in player class that defines the boundaries, in this case it wraps around
+    def inbounds(self):
+        if self.rect.x > WIDTH:
+           self.pos.x = 0
+        if self.rect.x < 0:
+            self.pos.x = WIDTH
 
-    def gravity(self,dt):
-        self.y_velocity+=self.gravity*dt
-        self.rect.y+=self.y_velocity
-
-    def flap(self,dt):
-        self.y_velocity=-self.flap_speed*dt
-
+# # method in the player class that is an output to the input, hence "update", it calles the methods self.input() and self.inbounds()
+#     def update(self):
+#         self.acc = vec(0, PLAYER_GRAV)
+#         self.acc.x = self.vel.x * PLAYER_FRICTION
+#         self.input()
+#         self.vel += self.acc
+#         self.pos += self.vel + 0.5 * self.acc
+#         self.rect.midbottom = self.pos
+#         self.inbounds()
 
 # creates a mob class, similar to the player
-class Mob(pg.sprite.Sprite):
+class Mob(Sprite):
     def __init__(self,width,height, color):
+        Sprite.__init__(self)
         self.width = width
         self.height = height
         self.image = pg.Surface((self.width,self.height))
@@ -80,12 +93,39 @@ class Mob(pg.sprite.Sprite):
         self.pos += self.vel
         self.rect.center = self.pos
 
-class Pipe:
-    def __init__(self,scale_factor,move_speed):
-        
-        self.pipe_distance=200
-        self.rect_up.y=randint(250,520)
-        self.rect_up.x=600
-        self.rect_down.y=self.rect_up.y-self.pipe_distance-self.rect_up.height
-        self.rect_down.x=600
-        self.move_speed=move_speed
+# class Platform(Sprite):
+#     def __init__(self, x, y, width, height, color, variant):
+#         Sprite.__init__(self)
+#         self.width = width
+#         self.height = height
+#         self.image = pg.Surface((self.width,self.height))
+#         self.color = color
+#         self.image.fill(self.color)
+#         self.rect = self.image.get_rect()
+#         self.rect.x = x
+#         self.rect.y = y
+#         self.variant = variant
+
+
+# # method in player class that updates the position after clicking the spacebar
+#     def update(self, dt):
+#         if self.update_on:
+#             self.gravity(dt)
+
+#             if self.rect.y<=0 and self.flap_speed==250:
+#                 self.rect.y=0
+#                 self.flap_speed=0
+#                 self.y_velocity=0
+#             elif self.rect.y>0 and self.flap_speed==0:
+#                 self.flap_speed=250
+
+#     def gravity(self,dt):
+#         self.y_velocity+=self.gravity*dt
+#         self.rect.y+=self.y_velocity
+
+#     def flap(self,dt):
+#         self.y_velocity=-self.flap_speed*dt
+
+
+# creates a mob class, similar to the player
+
