@@ -5,14 +5,13 @@ import os
 from settingsfinaltest import *
 from spritesfinaltest import *
 from random import randint
+import random
 
 '''
 Things to do:
 1) Make platforms go left
 2) Figue out jump mechanics
 3) Figure out how the player will die
-4) How will the colors kill the player
-5) Import a bakground
 '''
 
 # set up assets folders
@@ -20,12 +19,12 @@ game_folder = os.path.dirname(__file__)
 img_folder = os.path.join(game_folder, "img")
 
 pg.init()
-screen = pg.display.set_mode((700, 500))
+screen = pg.display.set_mode((WIDTH,HEIGHT))
 
 # defines the button perameters, boarder, font, size etc...
 def button(screen, position, text, size, colors="white on blue"):
     fg, bg = colors.split(" on ")
-    font = pg.font.SysFont("Cascadia Code", size)
+    font = pg.font.SysFont("inkfree", size)
     text_render = font.render(text, 1, fg)
     x, y, w , h = text_render.get_rect()
     x, y = position
@@ -39,9 +38,9 @@ def button(screen, position, text, size, colors="white on blue"):
 def menu():
     pg.display.set_caption("menu")
     # creates what is displayed on the buttons
-    b0 = button(screen, (10, 10), "Do you wanna play Jumper?", 72, "white on black")
-    b1 = button(screen, (150, 300), "Na", 60, "red on blue")
-    b2 = button(screen, (450, 300), "Let's play", 60, "purple on green")
+    b0 = button(screen, (10, 10), "Do you wanna play FlAPPY?", 59, "white on black")
+    b1 = button(screen, (150, 300), "Na", 40, "red on blue")
+    b2 = button(screen, (450, 300), "Let's play", 40, "purple on green")
 
     # loop of the menu
     while True:
@@ -56,123 +55,143 @@ def menu():
                 if b1.collidepoint(pg.mouse.get_pos()):
                     pg.quit()
                 elif b2.collidepoint(pg.mouse.get_pos()):
-                    g.new()
+                    new()
         pg.display.update()
     pg.quit()
 
+
 # create game class in order to pass properties to the sprites file
-class Game:
-    def __init__(self):
-        # instantiates the game window
-        pg.init()
-        pg.mixer.init()
-        self.screen = pg.display.set_mode((WIDTH, HEIGHT))
-        pg.display.set_caption("my game")
-        self.clock = pg.time.Clock()
-        self.running = True
-        self.font_name = pg.font.match_font(GAME_FONT)
-        print(self.screen)
+def new():
+    pg.init()
+    screen = pg.display.set_mode((WIDTH, HEIGHT))
+    screen.fill(WHITE)
+    pg.display.set_caption("my game")
+    score = 0
+    clock = pg.time.Clock()
+    running = True
+    font_name = pg.font.match_font("inkfree")
 
-    # method that starts a new game
-    def new(self):
-        self.score = 0
-        self.all_sprites = pg.sprite.Group()
-        self.platforms = pg.sprite.Group()
-        self.enemies = pg.sprite.Group()
-        self.player = Player(self)
-        self.all_sprites.add(self.player)
-        for i in range(0,10):
-            # calls the variable "m", the mob class
-            m = Mob(20,20,(RED))
-            self.all_sprites.add(m)
-            self.enemies.add(m)
-        self.run()
-
-    # method that has the game loop
-    def run(self):
-        # Game Loop
-        self.playing = True
-        while self.playing:
-            self.clock.tick(FPS)
-            # calls upon the methods listed below
-            self.events()
-            self.update()
-            self.draw()
-
-    # method for recieving the user input
-    def events(self):
-        for event in pg.event.get():
-            if event.type == pg.QUIT:
-                if self.playing:
-                    self.playing = False
-                self.running = False
-            if event.type == pg.KEYDOWN:
-                if event.key == pg.K_SPACE:
-                    self.player.jump()
-
-    # method for drawing the game
-
-    # draws background, sprites, and text
-    def draw(self):
-        self.screen.fill(WHITE)
-        self.all_sprites.draw(self.screen)
-        self.draw_text(str(self.score), 20, BLACK, 15, 5)
-        pg.display.flip()
-
-    '''
-    GOAL 2: Score
-    Used the draw method in the base code
-    1) How will the score increase?
-    Line 208: When the platforms are greater than the height (off the bottom screen), score increases by 10
-    '''
-    # method for drawing the score on the top left
-    def draw_text(self, text, size, color, x, y):
-        font_name = pg.font.match_font('arial')
-        font = pg.font.Font(font_name, size)
-        text_surface = font.render(text, True, color)
-        text_rect = text_surface.get_rect()
-        text_rect.midtop = (x,y)
-        self.screen.blit(text_surface, text_rect)   
-
-    '''
-    Goal 1: Collisions between Mob and Player
-    Requires 2 questions to be asked
-    1) What happens when the mob collides with the play? (Player position moves)
-    2) What will happen when the mob hits the player from a certain side? '
-    (M hits P @ Top -> P goes Down, M hits P @ Down -> P goes Up, M hits P @ Left -> P goes Right, M hits P @ Right -> P goes Left )
-    '''
+    bird = pg.Surface((50,50))
+    bird.fill(BLUE)
+    bird.get_rect()
+    bird_x = 50
+    bird_y = HEIGHT/2
+    bird_change = 0
     
-    # method that updates the results of player's position 
-    def update(self):
-        # Updates the the sprites in the game loop
-        self.all_sprites.update()
+    def birdy(x,y):
+        screen.blit(bird, (x,y))
+    
+    pipe_width = 70
+    pipe_height = random.randint(150,400)
+    pipe_color = RANDCOLOR
+    pipe_change = -4
+    pipe_x = 500
+
+    def pipes(height):
+        pg.draw.rect(screen, pipe_color, (pipe_x, 0, pipe_width, height))
+        bottom_pipe_height = 700 - height - 150
+        pg.draw.rect(screen, pipe_color, (pipe_x, 700, pipe_width, -bottom_pipe_height))
+
+
+    def pipe_collision(pipe_x, pipe_height, bird_y, bottom_pipe_height):
+        if pipe_x >= 50 and pipe_x <= (50 + 64):
+            if bird_y <= pipe_height or bird_y >= (bottom_pipe_height - 64):
+                return True
+            return False
+    
+
+
+    def draw_score(score):
+        font_name = pg.font.match_font('inkfree')
+        font = pg.font.Font(font_name)
+        display = font.render("score:{score}", True, (255,255,255))
+        screen.blit(display,(10,10))
+    
+
+    def start():
+        display = GAME_FONT.render("press space bar to start", True, (255,255,255))
+        screen.blit(display, (WIDTH/2, 100))
+        pg.display.update()
+
+    scores = [0]
+
+    def dead():
+        maximum = max(scores)
+        game_over = GAME_FONT.render("you died!", True, (RED))
+        screen.blit(game_over, (WIDTH/2, 300))
         
-        # variable for when the mob hits the plater
-        mhits = pg.sprite.spritecollide(self.player, self.enemies, False)
-        # when mob hits...
-        if mhits:
-            # mob hits player on the left, then the moves 10 pixels to right
-            if self.player.vel.x < 0:
-                self.player.pos.x += 10
-            
-            # mob hits player on the right, then  moves player 10 pixels to the left
-            if self.player.vel.x > 0:
-                self.player.pos.x -= 10
-            # mob hits player from bottom, then moves player 10 pixels up
+        high_score = GAME_FONT.render("score: {score} max score: {maximum}", True, (SLIME))
+        screen.blit(high_score, (WIDTH/2, 400))
 
-            if self.player.vel.y > 0:
-                self.player.pos.y -= 10
+        if score == maximum:
+            new_score = GAME_FONT.render("congrats!, new high score", True, (BABYBLUE))
+            screen.blit(high_score, (WIDTH/2, 100))
 
-            # mob hits player from the top, then moves player 10 pixels doen
-            if self.player.vel.y < 0:
-                self.player.pos.y += 10
+    running = True
 
-# instantiates the game class
-g = Game()
+    wait = True
 
-# starts game loop
-while g.running:
-    menu()
-    g.new()
+    collide = False
 
-pg.quit()
+    while running:
+        screen.fill(WHITE)
+
+        while wait:
+            if collide:
+                dead()
+                start()
+
+            else:
+                start()
+
+            for event in pg.event.get():
+                if event.type == pg.KEYDOWN:
+                    if event.key == pg.K_SPACE:
+                        score = 0
+                        bird_y = HEIGHT/2
+                        pipe_x = 700
+
+                        waiting = False
+                    
+                if event.type == pg.QUIT:
+                    waiting = False
+                    running = False
+
+    for event in pg.event.get():
+        if event.type == pg.QUIT:
+            running = False
+
+        if event.type == pg.KEYUP:
+            if event.key == pg.K_SPACE:
+                bird_change = 3
+
+    bird_y += bird_change
+    if bird_y <= 0:
+        bird_y = 0
+    if bird_y >= 571:
+        bird_y = 571
+
+    pipe_x += pipe_change
+
+    collide = dead(pipe_x, pipe_height, bird_y, pipe_height + 150)
+
+    if collide:
+        scores.append(score)
+        waiting = True
+
+    if pipe_x <= -10:
+        pipe_x = 500
+        pipe_height = random.random(200,400)
+        score += 1
+
+    pipes(pipe_height)
+
+    bird(bird_x, bird_y)
+
+    draw_score(score)
+
+    pg.display.update
+
+menu()
+
+
