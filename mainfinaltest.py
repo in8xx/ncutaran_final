@@ -82,8 +82,8 @@ def birdy(x,y):
     screen.blit(bird, (x,y))
 
 pipe_width = 70
-pipe_height = random.randint(150,400)
-pipe_color = RANDCOLOR
+pipe_height = random.randint(200,300)
+pipe_color = (255, 215, 0)
 pipe_change = -4
 pipe_x = 500
 
@@ -101,8 +101,8 @@ def pipe_collision(pipe_x, pipe_height, bird_y, bottom_pipe_height):
 
 
 
-def draw_score(score):
-    display = GAME_FONT.render("score:{score}", True, (255,255,255))
+def draw_score(scores):
+    display = GAME_FONT.render("score:{scores}", True, (255,255,255))
     screen.blit(display,(10,10))
 
 
@@ -111,15 +111,15 @@ def start():
     screen.blit(start, (200, 100))
     pg.display.update()
 
-scores = [0]
+scores_list = [0]
 
 def dead():
-    maximum = max(scores)
+    maximum = max(scores_list)
     game_over = GAME_FONT.render("you died!", True, (RED))
     screen.blit(game_over, (300, 300))
     
-    high_score = GAME_FONT.render("score: {score} high score: {maximum}", True, (SLIME))
-    screen.blit(high_score, (100, 400))
+    high_score = GAME_FONT.render("score: {score} high score: {score}", True, (SLIME))
+    screen.blit(high_score, (135, 400))
 
     play_again = GAME_FONT.render("press space bar to play again", True, (SLIME))
     screen.blit(play_again, (150, 500))
@@ -151,7 +151,7 @@ while running:
             if event.type == pg.KEYDOWN:
                 if event.key == pg.K_SPACE:
                     score = 0
-                    bird_y = HEIGHT/2
+                    bird_y = 350
                     pipe_x = 700
 
                     wait = False
@@ -164,11 +164,16 @@ while running:
         if event.type == pg.QUIT:
             running = False
 
+        if event.type == pg.KEYDOWN:
+            if event.key == pg.K_SPACE:
+                bird_change = -10
+        
         if event.type == pg.KEYUP:
             if event.key == pg.K_SPACE:
-                bird_change = 3
+                bird_change = 5
 
     bird_y += bird_change
+    birdy(bird_x, bird_y)
     if bird_y <= 0:
         bird_y = 0
     if bird_y >= 701:
@@ -179,19 +184,20 @@ while running:
     collide = pipe_collision(pipe_x, pipe_height, bird_y, pipe_height + 150)
 
     if collide:
-        scores.append(score)
+        scores_list.append(score)
         wait = True
 
     if pipe_x <= -10:
         pipe_x = 700
-        pipe_height = random.randint(200,400)
+        pipe_height = random.randint(100,300)
         score += 1
+    pipes(pipe_height)
 
     pipes(pipe_height)
 
     birdy(bird_x, bird_y)
 
-    draw_score(score)
+    draw_score(scores_list)
 
     pg.display.update()
 
