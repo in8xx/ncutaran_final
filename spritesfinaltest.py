@@ -5,25 +5,8 @@ from settingsfinaltest import *
 from random import randint
 vec = pg.math.Vector2
 
-# creates a player class
-class Player(Sprite):
-    def __init__(self, game):
-        pg.sprite.Sprite.__init__(self)
-        # properties
-        self.game = game
-        self.image = pg.Surface((50,50))
-        self.image.fill(BLACK)
-        self.rect = self.image.get_rect()
-        self.rect.center = (WIDTH/2, HEIGHT/2)
-        self.pos = vec(WIDTH/2, HEIGHT/2)
-        self.vel = vec(0,0)
-        self.acc = vec(0,0)
-        self.cofric = 0.1
-        self.canjump = False
 
-        
-
-# creates a mob class, similar to the player
+# creates a mob class
 class Mob(Sprite):
     def __init__(self,width,height, color):
         Sprite.__init__(self)

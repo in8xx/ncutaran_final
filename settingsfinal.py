@@ -1,4 +1,6 @@
 import pygame as pg
+pg.init()
+
 # Game Parameters
 WIDTH = 700
 HEIGHT = 700
@@ -8,7 +10,7 @@ PLAYER_JUMP = 20
 PLAYER_GRAV = 0.8
 MOB_ACC = 2
 MOB_FRICTION = -0.3
-GAME_FONT = pg.font.FONT("inkfree,ttf", 32)
+GAME_FONT = pg.font.SysFont("inkfree", 32, False, False)
 
 
 # define colors

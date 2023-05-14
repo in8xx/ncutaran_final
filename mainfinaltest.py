@@ -2,8 +2,8 @@
 
 import pygame as pg
 import os 
-from settingsfinaltest import *
-from spritesfinaltest import *
+from settingsfinal import *
+
 from random import randint
 import random
 
@@ -18,144 +18,147 @@ Things to do:
 game_folder = os.path.dirname(__file__)
 img_folder = os.path.join(game_folder, "img")
 
-pg.init()
-screen = pg.display.set_mode((WIDTH,HEIGHT))
+# pg.init()
+# screen = pg.display.set_mode((WIDTH,HEIGHT))
 
-# defines the button perameters, boarder, font, size etc...
-def button(screen, position, text, size, colors="white on blue"):
-    fg, bg = colors.split(" on ")
-    font = pg.font.SysFont("inkfree", size)
-    text_render = font.render(text, 1, fg)
-    x, y, w , h = text_render.get_rect()
-    x, y = position
-    pg.draw.line(screen, (150, 150, 150), (x, y), (x + w , y), 5)
-    pg.draw.line(screen, (150, 150, 150), (x, y - 2), (x, y + h), 5)
-    pg.draw.line(screen, (50, 50, 50), (x, y + h), (x + w , y + h), 5)
-    pg.draw.line(screen, (50, 50, 50), (x + w , y+h), [x + w , y], 5)
-    pg.draw.rect(screen, bg, (x, y, w , h))
-    return screen.blit(text_render, (x, y)) 
+# # defines the button perameters, boarder, font, size etc...
+# def button(screen, position, text, size, colors="white on blue"):
+#     fg, bg = colors.split(" on ")
+#     font = pg.font.SysFont("inkfree", size)
+#     text_render = font.render(text, 1, fg)
+#     x, y, w , h = text_render.get_rect()
+#     x, y = position
+#     pg.draw.line(screen, (150, 150, 150), (x, y), (x + w , y), 5)
+#     pg.draw.line(screen, (150, 150, 150), (x, y - 2), (x, y + h), 5)
+#     pg.draw.line(screen, (50, 50, 50), (x, y + h), (x + w , y + h), 5)
+#     pg.draw.line(screen, (50, 50, 50), (x + w , y+h), [x + w , y], 5)
+#     pg.draw.rect(screen, bg, (x, y, w , h))
+#     return screen.blit(text_render, (x, y)) 
 
-def menu():
-    pg.display.set_caption("menu")
-    # creates what is displayed on the buttons
-    b0 = button(screen, (10, 10), "Do you wanna play FlAPPY?", 59, "white on black")
-    b1 = button(screen, (150, 300), "Na", 40, "red on blue")
-    b2 = button(screen, (450, 300), "Let's play", 40, "purple on green")
+# def menu():
+#     pg.display.set_caption("menu")
+#     # creates what is displayed on the buttons
+#     b0 = button(screen, (10, 10), "Do you wanna play FlAPPY?", 59, "white on black")
+#     b1 = button(screen, (150, 300), "Na", 40, "red on blue")
+#     b2 = button(screen, (450, 300), "Let's play", 40, "purple on green")
 
-    # loop of the menu
-    while True:
-        for event in pg.event.get():
-            if event.type == pg.QUIT:
-                pg.quit()
-            if event.type == pg.KEYDOWN:
-                if event.key == pg.K_ESCAPE:
-                    pg.quit()
-            if event.type == pg.MOUSEBUTTONDOWN:
-                # quits pygame
-                if b1.collidepoint(pg.mouse.get_pos()):
-                    pg.quit()
-                elif b2.collidepoint(pg.mouse.get_pos()):
-                    new()
-        pg.display.update()
-    pg.quit()
+#     # loop of the menu
+#     while True:
+#         for event in pg.event.get():
+#             if event.type == pg.QUIT:
+#                 pg.quit()
+#             if event.type == pg.KEYDOWN:
+#                 if event.key == pg.K_ESCAPE:
+#                     pg.quit()
+#             if event.type == pg.MOUSEBUTTONDOWN:
+#                 # quits pygame
+#                 if b1.collidepoint(pg.mouse.get_pos()):
+#                     pg.quit()
+#                 elif b2.collidepoint(pg.mouse.get_pos()):
+#                     new()
+#         pg.display.update()
+#     pg.quit()
 
 
 # create game class in order to pass properties to the sprites file
-def new():
-    pg.init()
-    screen = pg.display.set_mode((WIDTH, HEIGHT))
-    screen.fill(WHITE)
-    pg.display.set_caption("my game")
-    score = 0
-    clock = pg.time.Clock()
-    running = True
-    font_name = pg.font.match_font("inkfree")
 
-    bird = pg.Surface((50,50))
-    bird.fill(BLUE)
-    bird.get_rect()
-    bird_x = 50
-    bird_y = HEIGHT/2
-    bird_change = 0
+pg.init()
+screen = pg.display.set_mode((WIDTH, HEIGHT))
+
+pg.display.set_caption("my game")
+score = 0
+clock = pg.time.Clock()
+running = True
+font_name = pg.font.match_font("inkfree, 32")
+
+bird = pg.Surface((50,50))
+bird.fill(BLUE)
+bird.get_rect()
+bird_x = 50
+bird_y = HEIGHT/2
+bird_change = 0
+
+def birdy(x,y):
+    screen.blit(bird, (x,y))
+
+pipe_width = 70
+pipe_height = random.randint(150,400)
+pipe_color = RANDCOLOR
+pipe_change = -4
+pipe_x = 500
+
+def pipes(height):
+    pg.draw.rect(screen, pipe_color, (pipe_x, 0, pipe_width, height))
+    bottom_pipe_height = 700 - height - 150
+    pg.draw.rect(screen, pipe_color, (pipe_x, 700, pipe_width, -bottom_pipe_height))
+
+
+def pipe_collision(pipe_x, pipe_height, bird_y, bottom_pipe_height):
+    if pipe_x >= 50 and pipe_x <= (50 + 64):
+        if bird_y <= pipe_height or bird_y >= (bottom_pipe_height - 64):
+            return True
+        return False
+
+
+
+def draw_score(score):
+    display = GAME_FONT.render("score:{score}", True, (255,255,255))
+    screen.blit(display,(10,10))
+
+
+def start():
+    start = GAME_FONT.render("press space bar to start", True, (255,255,255))
+    screen.blit(start, (200, 100))
+    pg.display.update()
+
+scores = [0]
+
+def dead():
+    maximum = max(scores)
+    game_over = GAME_FONT.render("you died!", True, (RED))
+    screen.blit(game_over, (300, 300))
     
-    def birdy(x,y):
-        screen.blit(bird, (x,y))
-    
-    pipe_width = 70
-    pipe_height = random.randint(150,400)
-    pipe_color = RANDCOLOR
-    pipe_change = -4
-    pipe_x = 500
+    high_score = GAME_FONT.render("score: {score} high score: {maximum}", True, (SLIME))
+    screen.blit(high_score, (100, 400))
 
-    def pipes(height):
-        pg.draw.rect(screen, pipe_color, (pipe_x, 0, pipe_width, height))
-        bottom_pipe_height = 700 - height - 150
-        pg.draw.rect(screen, pipe_color, (pipe_x, 700, pipe_width, -bottom_pipe_height))
+    play_again = GAME_FONT.render("press space bar to play again", True, (SLIME))
+    screen.blit(play_again, (150, 500))
 
-
-    def pipe_collision(pipe_x, pipe_height, bird_y, bottom_pipe_height):
-        if pipe_x >= 50 and pipe_x <= (50 + 64):
-            if bird_y <= pipe_height or bird_y >= (bottom_pipe_height - 64):
-                return True
-            return False
+    if score == maximum:
+        new_score = GAME_FONT.render("congrats!, new high score", True, (BABYBLUE))
+        screen.blit(new_score, (200, 200))
     
 
 
-    def draw_score(score):
-        font_name = pg.font.match_font('inkfree')
-        font = pg.font.Font(font_name)
-        display = font.render("score:{score}", True, (255,255,255))
-        screen.blit(display,(10,10))
-    
+running = True
 
-    def start():
-        display = GAME_FONT.render("press space bar to start", True, (255,255,255))
-        screen.blit(display, (WIDTH/2, 100))
-        pg.display.update()
+wait = True
 
-    scores = [0]
+collide = False
 
-    def dead():
-        maximum = max(scores)
-        game_over = GAME_FONT.render("you died!", True, (RED))
-        screen.blit(game_over, (WIDTH/2, 300))
-        
-        high_score = GAME_FONT.render("score: {score} max score: {maximum}", True, (SLIME))
-        screen.blit(high_score, (WIDTH/2, 400))
+while running:
+    screen.fill(BLACK)
 
-        if score == maximum:
-            new_score = GAME_FONT.render("congrats!, new high score", True, (BABYBLUE))
-            screen.blit(high_score, (WIDTH/2, 100))
+    while wait:
+        if collide:
+            dead()
+            start()
 
-    running = True
+        else:
+            start()
 
-    wait = True
+        for event in pg.event.get():
+            if event.type == pg.KEYDOWN:
+                if event.key == pg.K_SPACE:
+                    score = 0
+                    bird_y = HEIGHT/2
+                    pipe_x = 700
 
-    collide = False
-
-    while running:
-        screen.fill(WHITE)
-
-        while wait:
-            if collide:
-                dead()
-                start()
-
-            else:
-                start()
-
-            for event in pg.event.get():
-                if event.type == pg.KEYDOWN:
-                    if event.key == pg.K_SPACE:
-                        score = 0
-                        bird_y = HEIGHT/2
-                        pipe_x = 700
-
-                        waiting = False
-                    
-                if event.type == pg.QUIT:
-                    waiting = False
-                    running = False
+                    wait = False
+                
+            if event.type == pg.QUIT:
+                wait = False
+                running = False
 
     for event in pg.event.get():
         if event.type == pg.QUIT:
@@ -168,30 +171,31 @@ def new():
     bird_y += bird_change
     if bird_y <= 0:
         bird_y = 0
-    if bird_y >= 571:
-        bird_y = 571
+    if bird_y >= 701:
+        bird_y = 701
 
     pipe_x += pipe_change
 
-    collide = dead(pipe_x, pipe_height, bird_y, pipe_height + 150)
+    collide = pipe_collision(pipe_x, pipe_height, bird_y, pipe_height + 150)
 
     if collide:
         scores.append(score)
-        waiting = True
+        wait = True
 
     if pipe_x <= -10:
-        pipe_x = 500
-        pipe_height = random.random(200,400)
+        pipe_x = 700
+        pipe_height = random.randint(200,400)
         score += 1
 
     pipes(pipe_height)
 
-    bird(bird_x, bird_y)
+    birdy(bird_x, bird_y)
 
     draw_score(score)
 
-    pg.display.update
+    pg.display.update()
 
-menu()
+pg.quit()
+
 
 
