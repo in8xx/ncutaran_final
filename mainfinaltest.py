@@ -80,18 +80,20 @@ def new():
     def birdy(x,y):
         screen.blit(bird, (x,y))
 
+    # defining pipe perameters
     pipe_width = 50
     pipe_height = random.randint(200,300)
     pipe_color = (255, 215, 0)
     pipe_change = -4
     pipe_x = 700
 
+    # method that draws the top and bottom pipes
     def pipes(height):
         pg.draw.rect(screen, pipe_color, (pipe_x, 0, pipe_width, height))
         bottom_pipe_height = 700 - height - 150
-        pg.draw.rect(screen, pipe_color, (pipe_x, 700, pipe_width, -bottom_pipe_height))
+        pg.draw.rect(screen, pipe_color, (pipe_x, -700, pipe_width, -bottom_pipe_height))
 
-
+    # method that detects pipe collision, if the birdy is as the position of the pipe when at 50, then birdy dies
     def pipe_collision(pipe_x, pipe_height, bird_y, bottom_pipe_height):
         if pipe_x >= 50 and pipe_x <= (50 + 50):
             if bird_y <= pipe_height or bird_y >= (bottom_pipe_height - 50):
@@ -101,11 +103,12 @@ def new():
 
     score = 0
 
+    # method that draws the score at the top left, F string that is connected to the variable "score"
     def draw_score(score):
         display = GAME_FONT.render(F"{score}", True, (255,255,255))
         screen.blit(display,(10,10))
 
-
+    # method that draws 
     def start():
         start = GAME_FONT.render("press space bar to start", True, (255,255,255))
         screen.blit(start, (200, 100))
@@ -113,17 +116,23 @@ def new():
 
     score_list = [0]
 
+    # method as a result of dying
     def dead():
+        # max returns a higher score if one exceeds the high score 
         maximum = max(score_list)
+        # font and position of the text
         game_over = GAME_FONT.render("you died!", True, (RED))
         screen.blit(game_over, (300, 300))
         
-        high_score = GAME_FONT.render("score: {score} high score: {score}", True, (SLIME))
+        # font and position of the text, F string that display the score
+        high_score = GAME_FONT.render(F"score: {score} high score: {score}", True, (SLIME))
         screen.blit(high_score, (135, 400))
 
+        # font and position of the text
         play_again = GAME_FONT.render("press space bar to play again", True, (SLIME))
         screen.blit(play_again, (150, 500))
 
+        # new high score will be drawn if it equals the maximum varible at the beginning of the method
         if score == maximum:
             new_score = GAME_FONT.render("congrats! new high score", True, (BABYBLUE))
             screen.blit(new_score, (200, 200))
@@ -165,6 +174,7 @@ def new():
             if event.type == pg.QUIT:
                 running = False
 
+            # gravity not working...
             if event.type == pg.KEYDOWN:
                 if event.key == pg.K_SPACE:
                     bird_change = -10
@@ -181,6 +191,7 @@ def new():
         if bird_y >= 701:
             bird_y = 701
 
+        # moves obstable
         pipe_x += pipe_change
         if pipe_x <= -10:
             pipe_x = 700
@@ -194,18 +205,21 @@ def new():
             wait = True
 
 
+        # pipe method not working...
         pipes(pipe_height)
 
-        pipes(pipe_height)
-
+        # calls the method "birdy"
         birdy(bird_x, bird_y)
 
+        # calls the method "draw_score"
         draw_score(score)
 
+        # updates the pygame window
         pg.display.update()
 
     pg.quit()
 
+# calls the method "menu"
 menu()
 
 
