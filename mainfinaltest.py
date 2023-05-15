@@ -20,6 +20,11 @@ img_folder = os.path.join(game_folder, "img")
 pg.init()
 screen = pg.display.set_mode((WIDTH,HEIGHT))
 
+# pg.mixer.init()
+# pg.mixer.music.load()
+# pg.mixer.play(-1)
+# pg.music.set_volume(.5)
+
 # defines the button perameters, boarder, font, size etc...
 def button(screen, position, text, size, colors="white on blue"):
     fg, bg = colors.split(" on ")
@@ -58,6 +63,11 @@ def menu():
         pg.display.update()
     pg.quit()
 
+bird_height = 50
+
+# jump mechanics
+gravity = 0.5
+jump_speed = -10
 
 # create game class in order to pass properties to the sprites file
 def new():
@@ -68,14 +78,14 @@ def new():
     score = 0
     clock = pg.time.Clock()
     running = True
-    font_name = pg.font.match_font("inkfree, 32")
 
     bird = pg.Surface((50,50))
     bird.fill(BLUE)
     bird.get_rect()
     bird_x = 50
     bird_y = 300
-    bird_change = 0
+    bird_vertical = 0
+    jump = False
 
     def birdy(x,y):
         screen.blit(bird, (x,y))
@@ -84,14 +94,15 @@ def new():
     pipe_width = 50
     pipe_height = random.randint(200,300)
     pipe_color = (255, 215, 0)
-    pipe_change = -4
+    pipe_change = -0.2
     pipe_x = 700
+    pipe_gap = 50
 
     # method that draws the top and bottom pipes
     def pipes(height):
-        pg.draw.rect(screen, pipe_color, (pipe_x, 0, pipe_width, height))
-        bottom_pipe_height = 700 - height - 150
-        pg.draw.rect(screen, pipe_color, (pipe_x, -700, pipe_width, -bottom_pipe_height))
+        bottom_pipe_height = HEIGHT - height - pipe_gap
+        pg.draw.rect(screen, pipe_color,(pipe_x, 0, pipe_width, height))
+        pg.draw.rect(screen, pipe_color, (pipe_x, bottom_pipe_height, pipe_width, HEIGHT - bottom_pipe_height))
 
     # method that detects pipe collision, if the birdy is as the position of the pipe when at 50, then birdy dies
     def pipe_collision(pipe_x, pipe_height, bird_y, bottom_pipe_height):
@@ -126,11 +137,7 @@ def new():
         
         # font and position of the text, F string that display the score
         high_score = GAME_FONT.render(F"score: {score} high score: {score}", True, (SLIME))
-        screen.blit(high_score, (135, 400))
-
-        # font and position of the text
-        play_again = GAME_FONT.render("press space bar to play again", True, (SLIME))
-        screen.blit(play_again, (150, 500))
+        screen.blit(high_score, (200, 400))
 
         # new high score will be drawn if it equals the maximum varible at the beginning of the method
         if score == maximum:
@@ -159,10 +166,9 @@ def new():
 
             for event in pg.event.get():
                 if event.type == pg.KEYDOWN:
-                    if event.key == pg.K_SPACE:
-                        score = 0
-                        bird_y = 350
-                        pipe_x = 700
+                    if event.key == pg.K_SPACE and not jump:
+                        bird_vertical = gravity
+                        jump = True
 
                         wait = False
                     
@@ -181,9 +187,19 @@ def new():
             
             if event.type == pg.KEYUP:
                 if event.key == pg.K_SPACE:
-                    bird_change = 5
+                    bird_vertical = jump_speed
 
-        bird_y += bird_change
+        bird_vertical += gravity
+
+        bird_y += bird_vertical
+
+        if bird >= HEIGHT - bird.get_height():
+            bird_y = HEIGHT - bird.get_height()
+            bird_vertical = 0
+            jump_speed = False
+
+        # bird_y = max(0, min(bird_y, HEIGHT - bird_height))
+
         birdy(bird_x, bird_y)
 
         if bird_y <= 0:
@@ -203,6 +219,7 @@ def new():
         if collide:
             score_list.append(score)
             wait = True
+            dead()
 
 
         # pipe method not working...
